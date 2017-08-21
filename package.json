@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/ppalyga/emaily#readme",
   "dependencies": {
+    "cookie-session": "^1.3.0",
     "express": "^4.15.4",
     "mongoose": "^4.11.7",
     "nodemon": "^1.11.0",
