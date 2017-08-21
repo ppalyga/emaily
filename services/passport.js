@@ -5,6 +5,16 @@ const passport = require('passport'),
   keys = require('../config/keys'),
   User = mongoose.model('users');
 
+//Stworzenie tokenu dla ciasteczka na podstawie niżej pobranego użytkownika z bazy danych.
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+//Identyfikacja użytkownika na podstawie tokenu w ciasteczku.
+passport.deserializeUser((id, done) => {
+  User.findById(id).then(user => {
+    done(null, user);
+  });
+});
 
 //Konfiguracja passporta - clientID i clientSecret z Google+ API, ścieżka do przekierowania po pozytywnej autentykacji, sprawdzenie czy użytkownik istnieje w bazie danych, a jeśli nie - utworzenie go.
 passport.use(
