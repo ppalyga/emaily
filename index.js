@@ -1,29 +1,22 @@
-//Require to sposób importowania zależności zwany CommonJS modules. Passport.js nie musimy przypisywać do zmiennej bo nie odwołujemy się niczego co jest w niej zawarte, chcemy go tylko w naszej aplikacji.
-const express = require('express');
-const mongoose = require('mongoose');
-const cookieSession = require('cookie-session');
-const passport = require('passport');
-const keys = require('./config/keys');
+//Podstawowe importy: express, mongoose, plik z kluczami konfiguracyjnymi, model użytkownika (musi być zaimportowany pierwszy, bo jest użyty w passport.js), passport.
+const express = require('express'),
+  mongoose = require('mongoose'),
+  keys = require('./config/keys');
 require('./models/User');
 require('./services/passport');
 
-//Połączenie z baza danych.
+//Połączenie z bazą danych.
 mongoose.connect(keys.mongoURI);
-//Stała app tworzy nową instację aplikacji express. W większości projektów używa się tylko jednej aplikacji.
-const app = express();
-//Konfiguracja cookie-session. MaxAge podawany jest w milisekundach.
-app.use(
-  cookieSession({
-    maxAge: 30 * 24 * 60 * 60 * 1000,
-    keys: [keys.cookieKey]
-  })
-);
-// Konfiguracja passportu by używał ciasteczek.
-app.use(passport.initialize());
-app.use(passport.session());
-//Import routów autentykacji.
+
+//Stworzenie instncji aplikacji, import routów z zewnętrznego pliku.
+app = express();
 require('./routes/authRoutes')(app);
 
-//Nasłuchiwanie portu dynamicznie przydzielonego przez Heroku lub 5000 na teście.
+//Route główny. 
+app.get('/', (req, res) => {
+  res.send('This is the homepage.');
+});
+
+//Nasłuchiwanie portu.
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);

@@ -1,21 +1,12 @@
-//Importy dla autentykacji - passport, strategia autentykacji i klucze.
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const mongoose = require('mongoose');
-const keys = require('../config/keys');
-const User = mongoose.model('users');
+//Podstawowe importy: passport, strategia, mongoose, klucze konfiguracyjne i model użytkownika.
+const passport = require('passport'),
+  GoogleStrategy = require('passport-google-oauth20').Strategy,
+  mongoose = require('mongoose'),
+  keys = require('../config/keys'),
+  User = mongoose.model('users');
 
-//Serializacja i deserializacja użytkownika pozwala na identyfikację podczas trwania sesji bez ponownego łączenia się z bazą danych. User.id to skrót dla id z Mongo.
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
 
-passport.deserializeUser((id, done) => {
-  User.findById(id).then(user => {
-    done(null, user);
-  });
-});
-//Wskazanie strategii dla Passporta, podanie kluczy Google i adresu do przekierowania po udzieleniu pozwolenia. W funkcji callback jeśli user istnieje w bazie przekazujemy do done null jako brak błędów i tego usera. Then to Promise, bo zapisy w bazie danych są asynchroniczne.
+//Konfiguracja passporta - clientID i clientSecret z Google+ API, ścieżka do przekierowania po pozytywnej autentykacji, sprawdzenie czy użytkownik istnieje w bazie danych, a jeśli nie - utworzenie go.
 passport.use(
   new GoogleStrategy(
     {
@@ -24,9 +15,8 @@ passport.use(
       callbackURL: '/auth/google/callback'
     },
     (accessToken, refreshToken, profile, done) => {
-      console.log(accessToken);
       User.findOne({ googleId: profile.id }).then(existingUser => {
-        if (exisitngUser) {
+        if (existingUser) {
           done(null, existingUser);
         } else {
           new User({ googleId: profile.id })
@@ -37,4 +27,3 @@ passport.use(
     }
   )
 );
-
